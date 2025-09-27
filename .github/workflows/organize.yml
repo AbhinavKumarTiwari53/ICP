@@ -18,7 +18,6 @@ jobs:
 
           # Get list of files added or modified in the last commit
           git diff --name-only --diff-filter=AM HEAD~1 HEAD | while read file; do
-            # Skip workflow files or hidden ones
             if [[ "$file" != .github/* && "$file" != ".gitignore" ]]; then
               mv "$file" "$DATE/" || true
             fi
@@ -27,11 +26,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Organize solutions into $DATE folder" || echo "No changes to commit"
+          git commit -m "Organize solutions into $DATE folder" || echo "No changes"
 
       - name: Push changes
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
-
