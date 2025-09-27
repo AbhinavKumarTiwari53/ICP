@@ -16,7 +16,6 @@ jobs:
           DATE=$(date +'%Y-%m-%d')
           mkdir -p "$DATE"
 
-          # Get list of files added or modified in the last commit
           git diff --name-only --diff-filter=AM HEAD~1 HEAD | while read file; do
             if [[ "$file" != .github/* && "$file" != ".gitignore" ]]; then
               mv "$file" "$DATE/" || true
@@ -29,5 +28,7 @@ jobs:
           git commit -m "Organize solutions into $DATE folder" || echo "No changes"
 
       - name: Push changes
-        run: |
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} HEAD:${{ github.ref_name }}
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref_name }}
