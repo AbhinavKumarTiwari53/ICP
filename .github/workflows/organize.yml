@@ -1,0 +1,36 @@
+name: Organize Solutions by Date
+
+on:
+  push:
+    branches:
+      - main   # change if your branch is not 'main'
+
+jobs:
+  organize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Move new/modified solutions into date folder
+        run: |
+          DATE=$(date +'%Y-%m-%d')
+          mkdir -p "$DATE"
+
+          # Get list of files added or modified in the last commit
+          git diff --name-only --diff-filter=AM HEAD~1 HEAD | while read file; do
+            # Skip workflow files or hidden ones
+            if [[ "$file" != .github/* && "$file" != ".gitignore" ]]; then
+              mv "$file" "$DATE/" || true
+            fi
+          done
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Organize solutions into $DATE folder" || echo "No changes to commit"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
